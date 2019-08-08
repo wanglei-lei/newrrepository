@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+
+        var data = [
+            {
+                name: '王小二',
+                value: 90
+            },
+            {
+                name: '王小三',
+                value: 90
+            },
+            {
+                name: '王小四',
+                value: 100
+            },
+            {
+                name: '王小五',
+                value: 50
+            },
+        ]
+        var canvas = document.createElement('canvas');
+        canvas.width = 500;
+        canvas.height = 500;
+        canvas.style.border = '1px solid pink';
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext('2d');
+        ctx.translate(50, 450);
+
+
+        var maxVal = JSON.parse(JSON.stringify(data)).sort((a, b) => b.value - a.value)[0].value;
+        console.log(maxVal)
+        var margin = 400 / (data.length + 1);
+
+        var colorArr = []
+
+
+
+        //坐标轴
+
+        function axis() {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -420);
+            ctx.moveTo(-5, -415);
+            ctx.lineTo(0, -420);
+            ctx.moveTo(5, -415);
+            ctx.lineTo(0, -420);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(420, 0);
+            ctx.moveTo(415, -5);
+            ctx.lineTo(420, 0);
+            ctx.moveTo(415, 5);
+            ctx.lineTo(420, 0);
+            ctx.stroke();
+        }
+        axis()
+
+
+        //画刻度
+
+        function Yaxis() {
+            ctx.save()
+            ctx.textAlign = 'end';
+            ctx.textBaseline = 'middle';
+            ctx.beginPath();
+            for (var i = 50; i <= 400; i += 50) {
+                ctx.moveTo(0, -i);
+                ctx.lineTo(5, -i);
+                ctx.stroke();
+                ctx.fillText(i / 400 * maxVal, -5, -i);
+            }
+            ctx.restore();
+        }
+
+        Yaxis()
+
+
+
+        //画x轴刻度
+
+        function Xaxis() {
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.beginPath();
+            for (var i = 0; i < data.length; i++) {
+                ctx.fillText(data[i].name, margin * (i + 1), 10);
+            }
+            ctx.restore;
+        }
+        Xaxis()
+
+
+
+        //画柱状
+
+        function columnar(e) {
+            ctx.save()
+            for (var i = 0; i < data.length; i++) {
+                colorArr.push(color());
+                ctx.beginPath();
+                ctx.fillStyle = colorArr[i]
+                ctx.rect(margin * (i + 1) - 10, 0, 20, -data[i].value / maxVal * 400);
+                ctx.closePath()
+                ctx.fill()
+                if (e && ctx.isPointInPath(e.offsetX, e.offsetY)) {
+                    ctx.fillStyle = 'green';
+
+
+                    ctx.fillText(data[i].value, margin * (i + 1), - (data[i].value / 100 * 400));
+                    ctx.fill()
+                    if (data[i].value < 60) {
+                        ctx.fillStyle = 'black'
+                        ctx.fillText("不及格", e.offsetX - 50, -(450 - e.offsetY))
+                    }
+                    if (data[i].value > 90) {
+                        ctx.fillStyle = 'black'
+                        ctx.fillText("优秀", e.offsetX - 50, -(450 - e.offsetY))
+                    }
+                }
+            }
+            ctx.restore()
+        }
+
+        columnar()
+
+        function color() {
+            return `rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)})`
+        }
+
+        canvas.addEventListener('mousemove', function (e) {
+            ctx.clearRect(-50, -450, 500, 500);
+            axis();
+            Yaxis();
+            Xaxis();
+            columnar(e)
+        })
+
+
+
+
+    </script>
+</body>
+
+</html>
